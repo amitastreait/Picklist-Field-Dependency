@@ -1,11 +1,11 @@
 public class MetadataPicklistController {
     public Blob csvFileBody{get;set;}
     public String csvFileName{get;set;}
-     
-    public static String objectName;
+    
+    public static String objectName { get; set; }
     public static String dependentPicklistFieldName;
     public static String parentPicklistFieldName;    
-  
+    
     /* 
         Prepare the Org to call the Metadata API on the current user permissions 
     */
@@ -21,6 +21,10 @@ public class MetadataPicklistController {
         
         Map<String, List<String>> mapDepValContVal = new Map<String, List<String>>();           
         mapDepValContVal = parseCSVFile();
+        
+        System.debug(' mapDepValContVal \n ' + mapDepValContVal);
+        
+        System.debug(' objectName ' + objectName );
         
         MetadataService.CustomField customField = new MetadataService.CustomField(); 
         customField.fullName = objectName + '.' + dependentPicklistFieldName;        
@@ -79,33 +83,37 @@ public class MetadataPicklistController {
     }
     
     public Map<String, List<String>> parseCSVFile(){
-       
-       Map<String, List<String>> depValToContValue = new Map<String, List<String>>();
-       try{
-           String csvAsString = csvFileBody.toString();
-           String[] csvFileLines = csvAsString.split('\n');
-           
-           objectName = csvFileLines[0].split(',')[0].trim();
-           String[] csvHeader = csvFileLines[1].split(',');
-           parentPicklistFieldName = csvHeader[0].trim();           
-           dependentPicklistFieldName = csvHeader[1].trim();
-           
-           for(Integer i = 2; i < csvFileLines.size(); i++){
-              String[] csvRecordData = csvFileLines[i].split(',');
-              String dependentValue = csvRecordData[1].trim();
-              String controllingValue = csvRecordData[0].trim();
-              if(!depValToContValue.containsKey(dependentValue)){
-                  depValToContValue.put(dependentValue, new List<String> {controllingValue});
-              }else{
-                  depValToContValue.get(dependentValue).add(controllingValue);
-              }
-           }
+        
+        Map<String, List<String>> depValToContValue = new Map<String, List<String>>();
+        try{
+            String csvAsString = csvFileBody.toString();
+            String[] csvFileLines = csvAsString.split('\n');
+            
+            csvFileLines[0].split(',')[0].trim();
+            
+            String[] csvHeader = csvFileLines[1].split(',');
+            parentPicklistFieldName = csvHeader[0].trim();           
+            dependentPicklistFieldName = csvHeader[1].trim();
+            
+            System.debug(' parentPicklistFieldName '+ parentPicklistFieldName  );
+            System.debug(' dependentPicklistFieldName '+ dependentPicklistFieldName );
+            
+            for(Integer i = 2; i < csvFileLines.size(); i++){
+                String[] csvRecordData = csvFileLines[i].split(',');
+                String dependentValue = csvRecordData[1].trim();
+                String controllingValue = csvRecordData[0].trim();
+                if(!depValToContValue.containsKey(dependentValue)){
+                    depValToContValue.put(dependentValue, new List<String> {controllingValue});
+                }else{
+                    depValToContValue.get(dependentValue).add(controllingValue);
+                }
+            }
         }catch (Exception e){
             ApexPages.Message errorMessage = new ApexPages.Message(ApexPages.severity.ERROR,'An error has occured while importing data, please make sure input csv file is correct.');
             ApexPages.addMessage(errorMessage);
         }
-
+        
         return depValToContValue;  
     }
-                   
+    
 }
