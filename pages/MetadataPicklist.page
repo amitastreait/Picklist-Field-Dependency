@@ -1,14 +1,31 @@
-
-<apex:page controller="MetadataPicklistController" lightningStylesheets="true">
+<apex:page showHeader="true" sidebar="true" controller="MetadataPicklistController"
+           lightningStylesheets="true">
     <apex:slds />
+    
+    <apex:actionstatus id="Status">
+        <apex:facet name="start">
+            <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb; height:100%;opacity:0.65;width:100%;">
+                <div class="waitingHolder" style="top: 100px; width: 91px;">
+                <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                <span class="waitingDescription">Loading...</span>
+                </div>
+            </div>
+        </apex:facet>
+   </apex:actionstatus>
+
     <!-- Heading-->
     <h1 style="text-align:center;color:green;"> Edit Field Dependency </h1>    
     <apex:pageMessages ></apex:pageMessages>
-    <apex:form >
+    <apex:form id="theForm" >
         <apex:pageBlock >
-            <apex:pageBlockSection columns="4"> 
+            <apex:pageBlockSection columns="2">
+                <apex:pageBlockSectionItem>
+                    <apex:outputLabel>Object API Name</apex:outputLabel> <apex:inputText value="{!objectName}" rendered="true" />
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection columns="2"> 
                 <apex:inputFile value="{!csvFileBody}"  filename="{!csvFileName}"/>
-                <apex:commandButton value="Update field dependency" action="{!updatePicklistField}"/>
+                <apex:commandButton status="Status" value="Update field dependency" action="{!updatePicklistField}" />
             </apex:pageBlockSection>
         </apex:pageBlock>
     </apex:form>   
